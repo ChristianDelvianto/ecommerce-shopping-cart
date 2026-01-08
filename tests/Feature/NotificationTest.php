@@ -20,26 +20,22 @@ class NotificationTest extends TestCase
     {
         Queue::fake();
 
-        User::factory()
-        ->create(['role' => 'admin']);
+        User::factory()->create(['role' => 'admin']);
 
-        $user = User::factory()
-                ->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'user']);
 
-        $cart = Cart::factory()
-                ->create(['user_id' => $user->id]);
+        $cart = Cart::factory()->create(['user_id' => $user->id]);
 
         $productStockQuantity = 6;
-        $product = Product::factory()
-                    ->create(['stock_quantity' => $productStockQuantity]);
+        $product = Product::factory()->create(['stock_quantity' => $productStockQuantity]);
 
         $cartItemQuantity = 3;
         $cartItem = CartItem::factory()
-                    ->create([
-                        'quantity' => $cartItemQuantity,
-                        'cart_id' => $cart->id,
-                        'product_id' => $product->id
-                    ]);
+            ->create([
+                'quantity' => $cartItemQuantity,
+                'cart_id' => $cart->id,
+                'product_id' => $product->id
+            ]);
 
         $this->assertDatabaseHas(CartItem::class, [
             'cart_id' =>  $cart->id,

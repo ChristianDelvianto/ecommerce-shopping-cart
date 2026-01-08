@@ -74,6 +74,7 @@ Tests prioritize business-critical paths over exhaustive coverage.
 - Scheduler: Laravel Task Scheduling (cron)
 
 The stack reflects common production Laravel deployments rather than experimental tooling.
+
 ---
 
 ## Screenshots

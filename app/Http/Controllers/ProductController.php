@@ -15,7 +15,7 @@ class ProductController extends Controller
                     ->latest()
                     ->paginate(20);
 
-        return Inertia::render('Products/Index', [
+        return Inertia::render('Products/ProductList', [
             'products' => $products
         ]);
     }
@@ -39,7 +39,7 @@ class ProductController extends Controller
                         ->limit(20)
                         ->get();
 
-        return Inertia::render('Products/Show', [
+        return Inertia::render('Products/ProductShow', [
             'product' => $product,
             'recommended' => $recommended
         ]);

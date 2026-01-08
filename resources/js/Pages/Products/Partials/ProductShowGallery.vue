@@ -9,14 +9,6 @@
 }
 </style>
 
-<script setup>
-import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
-
-const page = usePage();
-const product = computed(() => page.props.product);
-</script>
-
 <template>
     <div
         class="flex flex-col product-card relative

@@ -69,7 +69,7 @@ Tests prioritize business-critical paths over exhaustive coverage.
 - Authentication: Laravel Breeze (session-based)
 - Styling: Tailwind CSS
 - Database: MySQL / PostgreSQL
-- Queue: Laravel Jobs (database driver; for production, we use Redis)
+- Queue: Laravel Jobs (`database` driver)
 - Scheduler: Laravel Task Scheduling (cron)
 
 The stack reflects common production Laravel deployments rather than experimental tooling.

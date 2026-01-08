@@ -5,15 +5,15 @@ export const useCart = () => {
     const page = usePage();
 
     // Data
+    const isEditing = ref(false);
+    const isLoading = ref(false);
+    const items = ref([]);
+    const itemToEdit = ref(null);
     const message = reactive({
         show: false,
         text: '',
         type: ''
     });
-    const isEditing = ref(false);
-    const isLoading = ref(false);
-    const items = ref([]);
-    const itemToEdit = ref(null);
 
     // Computed
     const nonDeletedItems = computed(() => {
@@ -42,7 +42,7 @@ export const useCart = () => {
             return item;
         });
     });
-    const subtotalAmount = computed(() => {
+    const subtotal = computed(() => {
         if (nonDeletedItems.value.length === 0) return '$0';
         
         const total = nonDeletedItems.value.reduce((acc, val) => acc + (val.product.price * val.quantity), 0) / 100;
@@ -66,7 +66,7 @@ export const useCart = () => {
 
         isLoading.value = true;
 
-        router.post('/cart/checkout', null, {
+        router.post(route('cart.checkout'), null, {
             onError: (err) => {
                 console.error('Error checking out cart:', err);
 
@@ -118,7 +118,11 @@ export const useCart = () => {
 
         item.deleted = true;
 
-        router.delete(`/cart/items/${item.id}`, {
+        message.type = 'success';
+        message.text = 'Cart item deleted';
+        message.show = true;
+
+        router.delete(route('cart.destroy', item.id), {
             onError: (err) => {
                 console.error('Error occured when removing a cart item:', err);
 
@@ -131,10 +135,6 @@ export const useCart = () => {
             onSuccess: () => {
                 // Permanently remove from ref array
                 items.value = items.value.filter(cartItem => cartItem.value !== item.id);
-
-                message.type = 'success';
-                message.text = 'Cart item deleted';
-                message.show = true;
             }
         });
     };
@@ -160,12 +160,11 @@ export const useCart = () => {
         isLoading,
         itemToEdit,
         formattedItems,
-        subtotalAmount,
-        resetMessage,
+        subtotal,
         checkoutCart,
         closeEditModal,
         openEditModal,
         updateItem,
-        removeItem
+        removeItem,
     };
 };

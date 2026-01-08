@@ -35,9 +35,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'role:user'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/checkout', [CartController::class, 'checkoutItems']);
-    Route::delete('/cart/items/{cart_item}', [CartController::class, 'removeCartItem']);
-    Route::put('/cart/products/{product}', [CartController::class, 'upsertProductToCart']);
+    Route::post('/cart/checkout', [CartController::class, 'checkoutItems'])->name('cart.checkout');
+    Route::delete('/cart/items/{cart_item}', [CartController::class, 'removeCartItem'])->name('cart.destroy');
+    Route::put('/cart/products/{product}', [CartController::class, 'upsertProductToCart'])->name('cart.upsert');
 });
 
 Route::middleware(['auth', 'role:user'])->group(function () {

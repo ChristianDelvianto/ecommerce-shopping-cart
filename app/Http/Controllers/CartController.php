@@ -24,7 +24,7 @@ class CartController extends Controller
                 ->with('product')
                 ->get();
 
-        return Inertia::render('Cart/Index', [
+        return Inertia::render('Cart/CartList', [
             'items' => $items
         ]);
     }

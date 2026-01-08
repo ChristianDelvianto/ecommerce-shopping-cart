@@ -6,7 +6,14 @@ const props = defineProps({
     product: { type: Object, required: true }
 });
 
-const productPrice = computed(() => (props.product.price / 100).toFixed(2));
+const formattedProductPrice = computed(() => {
+    const productPrice = props.product.price / 100;
+
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+    }).format(productPrice);
+});
 </script>
 
 <template>
@@ -19,7 +26,7 @@ const productPrice = computed(() => (props.product.price / 100).toFixed(2));
         <span class="product-info">
             <span>{{ product.name }}</span>
 
-            <span class="font-semibold text-blue-600 text-lg">${{ productPrice }}</span>
+            <span class="font-semibold text-blue-600 text-lg">{{ formattedProductPrice }}</span>
         </span>
     </Link>
 </template>

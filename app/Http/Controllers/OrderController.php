@@ -14,7 +14,7 @@ class OrderController extends Controller
                 ->latest()
                 ->paginate(20);
 
-        return Inertia::render('Orders/Index', [
+        return Inertia::render('Orders/OrderList', [
             'orders' => $orders
         ]);
     }

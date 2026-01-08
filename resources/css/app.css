@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    /* Chrome, Safari, Edge, Opera */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+        @apply m-0;
+        -webkit-appearance: none;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    table, td, th, tr {
+        @apply border border-gray-300;
+    }
+
+    th {
+        @apply p-3;
+    }
+
+    .product-card {
+        @apply bg-white max-w-full min-w-0 relative;
+    }
+
+    .product-card .product-image-placeholder {
+        @apply block overflow-hidden relative;
+    }
+
+    .product-card .product-image-placeholder::after {
+        @apply bg-gray-300 block pb-[100%] rounded-sm;
+        content: '';
+    }
+
+    .product-card .product-info {
+        @apply flex flex-col flex-grow flex-shrink gap-2 justify-between p-2 w-full;
+    }
+}

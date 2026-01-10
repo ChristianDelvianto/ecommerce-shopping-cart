@@ -23,31 +23,20 @@ class NotificationTest extends TestCase
         User::factory()->create(['role' => 'admin']);
 
         $user = User::factory()->create(['role' => 'user']);
-
         $cart = Cart::factory()->create(['user_id' => $user->id]);
+        $product = Product::factory()->create(['stock_quantity' => 6]);
 
-        $productStockQuantity = 6;
-        $product = Product::factory()->create(['stock_quantity' => $productStockQuantity]);
-
-        $cartItemQuantity = 3;
         $cartItem = CartItem::factory()
             ->create([
-                'quantity' => $cartItemQuantity,
+                'quantity' => 3,
                 'cart_id' => $cart->id,
                 'product_id' => $product->id
             ]);
 
-        $this->assertDatabaseHas(CartItem::class, [
-            'cart_id' =>  $cart->id,
-            'product_id' => $product->id,
-            'quantity' => $cartItemQuantity
-        ]);
-
         $this->actingAs($user)->post('/cart/checkout');
-
         $this->assertDatabaseHas(Product::class, [
             'id' => $product->id,
-            'stock_quantity' => ($productStockQuantity - $cartItemQuantity)
+            'stock_quantity' => 3
         ]);
 
         Queue::assertPushed(NotifyLowStockQuantity::class);

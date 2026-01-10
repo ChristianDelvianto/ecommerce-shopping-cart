@@ -13,35 +13,62 @@ class ProductTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_can_update_product(): void
+    public function test_product_index_shows_only_products_with_stock(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $this->withoutVite();
 
-        $product = Product::factory()->create();
+        $user = User::factory()->create();
+        $inStockProduct = Product::factory()->create(['stock_quantity' => 100]);
+        Product::factory()->create(['stock_quantity' => 0]);
 
-        $response = $this->actingAs($admin)
-            ->patch("/products/{$product->id}", [
-                'name' => 'Test update'
-            ]);
-
+        $response = $this->actingAs($user)->get('/products', [
+            'X-Inertia' => 'true',
+            'Accept' => 'application/json',
+        ]);
         $response
-            ->assertSessionDoesntHaveErrors()
-            ->assertRedirectBackWithoutErrors();
+            ->assertOk()
+            ->assertJsonPath('component', 'Products/ProductList')
+            ->assertJsonCount(1, 'props.products.data')
+            ->assertJsonPath('props.products.data.0.id', $inStockProduct->id);
     }
 
-    public function test_user_cannot_update_product(): void
+    public function test_product_show_loads_product_and_recommended_products(): void
     {
-        $user = User::factory()->create(['role' => 'user']);
+        $this->withoutVite();
 
-        $product = Product::factory()->create();
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['stock_quantity' => 5]);
 
-        $response = $this->actingAs($user)
-            ->patch("/products/{$product->id}", [
-                'name' => 'Test update'
-            ]);
+        Product::factory()->count(3)->create(['stock_quantity' => 10]);
 
+        $response = $this->actingAs($user)->get("/products/{$product->id}", [
+            'X-Inertia' => 'true',
+            'Accept' => 'application/json',
+        ]);
         $response
-            ->assertSessionHasErrors()
-            ->assertRedirectBackWithErrors();
+            ->assertOk()
+            ->assertJsonPath('component', 'Products/ProductShow')
+            ->assertJsonPath('props.product.id', $product->id)
+            ->assertJsonCount(3, 'props.recommended');
+    }
+
+    public function test_product_show_does_not_include_out_of_stock_recommendations(): void
+    {
+        $this->withoutVite();
+
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['stock_quantity' => 5]);
+
+        Product::factory()->create(['stock_quantity' => 0]);
+        Product::factory()->create(['stock_quantity' => 10]);
+
+        $response = $this->actingAs($user)->get("/products/{$product->id}", [
+            'X-Inertia' => 'true',
+            'Accept' => 'application/json',
+        ]);
+
+        $recommended = collect($response->json('props.recommended'));
+
+        $this->assertTrue($recommended->every(fn ($p) => $p['stock_quantity'] > 0));
     }
 }

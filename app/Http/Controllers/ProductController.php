@@ -44,18 +44,4 @@ class ProductController extends Controller
             'recommended' => $recommended
         ]);
     }
-
-    /**
-     * Update a product (Admin only)
-     */
-    public function update(UpdateProductRequest $request, Product $product)
-    {
-        $product->fill($request->validated());
-
-        $product->save();
-
-        Inertia::flash('success', 'Product updated');
-
-        return back();
-    }
 }

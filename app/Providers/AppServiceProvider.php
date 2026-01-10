@@ -25,11 +25,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        if (app()->runningUnitTests()) {
-            Vite::useHotFile(null);
-            Vite::useBuildDirectory('build');
-        }
-
         RateLimiter::for('global', function (Request $request) {
             return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
         });

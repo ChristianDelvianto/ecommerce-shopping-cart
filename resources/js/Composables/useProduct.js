@@ -5,7 +5,6 @@ export const useProduct = () => {
     const page = usePage();
 
     // Data
-    const isLoading = ref(false);
     const qtyCount = ref(1);
     const message = reactive({
         show: false,
@@ -15,16 +14,8 @@ export const useProduct = () => {
 
     // Computed
     const product = computed(() => page.props.product);
-    const cartItem = computed(() => product.value.cart_items?.[0] ?? null);
+    const productCartItem = computed(() => page.props.product.cart_items?.[0] ?? null);
     const recommended = computed(() => page.props.recommended ?? []);
-    const formattedProductPrice = computed(() => {
-        const productPrice = page.props.product.price / 100;
-
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(productPrice);
-    });
 
     // Functions
     function resetMessage () {
@@ -33,24 +24,10 @@ export const useProduct = () => {
         message.text = '';
     };
     function instantCheckout () {
-        window.alert('Congratulation, the button is working');
-    };
-    function updateCount (count) {
-        resetMessage();
-
-        if (isLoading.value
-        || count < 1
-        || count > product.value.stock_quantity)
-        return;
-
-        qtyCount.value = count;
+        window.alert('The button is working, but not in development scope');
     };
     function upsertToCart () {
         resetMessage();
-    
-        if (isLoading.value) return;
-    
-        isLoading.value = true;
     
         router.put(route('cart.upsert', product.value.id), {
             count: qtyCount.value
@@ -77,28 +54,21 @@ export const useProduct = () => {
                 router.reload({
                     only: ['product'],
                 });
-            },
-            onFinish: () => {
-                isLoading.value = false;
             }
         });
     };
 
-    // Watch
-    watch(() => cartItem.value?.quantity, (val) => {
+    watch(() => productCartItem.value?.quantity, (val) => {
         qtyCount.value = val ?? 1;
     }, { immediate: true });
 
     return {
-        isLoading,
         qtyCount,
         message,
         product,
-        cartItem,
+        productCartItem,
         recommended,
-        formattedProductPrice,
         instantCheckout,
-        updateCount,
         upsertToCart,
     };
 };

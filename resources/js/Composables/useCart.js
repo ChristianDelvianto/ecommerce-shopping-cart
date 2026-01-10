@@ -6,7 +6,6 @@ export const useCart = () => {
 
     // Data
     const isEditing = ref(false);
-    const isLoading = ref(false);
     const items = ref([]);
     const itemToEdit = ref(null);
     const message = reactive({
@@ -25,14 +24,12 @@ export const useCart = () => {
         if (nonDeletedItems.value.length === 0) return [];
 
         return nonDeletedItems.value.map(item => {
-            // Add formatted price per unit
             const pricePerUnit = item.product.price / 100;
             item.product.formatted_price_per_unit = new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: 'USD',
                 }).format(pricePerUnit);
 
-            // Add formatted subtotal
             const subtotal = (item.quantity * item.product.price) / 100;
             item.formatted_sub_total = new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -48,9 +45,9 @@ export const useCart = () => {
         const total = nonDeletedItems.value.reduce((acc, val) => acc + (val.product.price * val.quantity), 0) / 100;
         
         return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(total);
+                style: 'currency',
+                currency: 'USD',
+            }).format(total);
     });
 
     // Functions
@@ -61,10 +58,6 @@ export const useCart = () => {
     };
     function checkoutCart () {
         resetMessage();
-
-        if (isEditing.value || isLoading.value) return;
-
-        isLoading.value = true;
 
         router.post(route('cart.checkout'), null, {
             onError: (err) => {
@@ -80,9 +73,6 @@ export const useCart = () => {
                 message.text = 'Your order has been created';
                 message.type = 'success';
                 message.show = true;
-            },
-            onFinish: () => {
-                isLoading.value = false;
             }
         });
     };
@@ -92,8 +82,6 @@ export const useCart = () => {
     };
     function openEditModal (item) {
         resetMessage();
-
-        if (isEditing.value || isLoading.value || item.deleted) return;
 
         itemToEdit.value = item;
         isEditing.value = true;
@@ -113,8 +101,6 @@ export const useCart = () => {
     };
     function removeItem (item) {
         resetMessage();
-
-        if (isEditing.value || isLoading.value || item.deleted) return;
 
         item.deleted = true;
 
@@ -157,7 +143,6 @@ export const useCart = () => {
     return {
         message,
         isEditing,
-        isLoading,
         itemToEdit,
         formattedItems,
         subtotal,

@@ -1,5 +1,7 @@
 # Laravel Shopping Cart - Take-Home Project
 
+[![Laravel Tests](https://github.com/ChristianDelvianto/laravel-shopping-cart/actions/workflows/laravel-tests.yml/badge.svg)](https://github.com/ChristianDelvianto/laravel-shopping-cart/actions/workflows/laravel-tests.yml)
+
 ## Overview
 
 This repository contains a simplified e-commerce flow built with Laravel, Vue 3, and Inertia.js, designed to demonstrate production-minded backend modeling, transactional correctness, and frontend–backend integration rather than UI polish.

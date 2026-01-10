@@ -3,6 +3,7 @@
 ![PHP](https://img.shields.io/badge/PHP-8.2-blue)
 ![Laravel](https://img.shields.io/badge/Laravel-12-red)
 [![Tests](https://github.com/ChristianDelvianto/laravel-shopping-cart/actions/workflows/laravel-tests.yml/badge.svg)](https://github.com/ChristianDelvianto/laravel-shopping-cart/actions/workflows/laravel-tests.yml)
+[![codecov](https://codecov.io/gh/ChristianDelvianto/laravel-shopping-cart/graph/badge.svg?token=3YEBEW9KBC)](https://codecov.io/gh/ChristianDelvianto/laravel-shopping-cart)
 
 ## Overview
 

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Product;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -16,6 +17,9 @@ class DailySalesReportNotification extends Mailable implements ShouldQueue
 
     /**
      * Create a new message instance.
+     * @param string $date
+     * @param int|float $grandTotal
+     * @param \Illuminate\Support\Collection<int, \App\Models\Product> $soldProducts
      */
     public function __construct(
         public string $date,

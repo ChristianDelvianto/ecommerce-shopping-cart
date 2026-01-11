@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -41,12 +43,18 @@ class Product extends Model
         ];
     }
 
-    public function carts()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Cart, $this>
+     */
+    public function carts(): BelongsToMany
     {
         return $this->belongsToMany(Cart::class, 'cart_items', 'product_id', 'cart_id', 'id', 'id');
     }
 
-    public function cartItems()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CartItem, $this>
+     */
+    public function cartItems(): HasMany
     {
         return $this->hasMany(CartItem::class, 'product_id', 'id');
     }

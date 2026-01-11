@@ -10,14 +10,16 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Services\CartService;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class CartController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         // Get user cart items with product
         $items = $request->user()->cartItems()
@@ -32,7 +34,7 @@ class CartController extends Controller
     /**
      * Checkout all cart items
      */
-    public function checkoutItems(Request $request)
+    public function checkoutItems(Request $request): RedirectResponse
     {
         try {
             DB::transaction(function () use ($request) {
@@ -98,7 +100,7 @@ class CartController extends Controller
     /**
      * Remove an item from cart
      */
-    public function removeCartItem(Request $request, CartItem $cartItem)
+    public function removeCartItem(Request $request, CartItem $cartItem): RedirectResponse
     {
         $cartItem->delete();
 
@@ -110,11 +112,11 @@ class CartController extends Controller
     /**
      * Update or insert new cart item
      */
-    public function upsertProductToCart(UpsertCartItemRequest $request, Product $product)
+    public function upsertProductToCart(UpsertCartItemRequest $request, Product $product): RedirectResponse
     {
         $cartItem = $request->user()->cartItems()
                     ->with('product')
-                    ->whereHas('product', function ($query) use ($request, $product) {
+                    ->whereHas('product', function ($query) use ($product) {
                         $query->where('id', $product->id);
                     })
                     ->first();

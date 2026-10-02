@@ -1,4 +1,4 @@
-# E-commerce Shopping Cart - Take-Home Project
+# E-commerce Shopping Cart
 
 ![PHP](https://img.shields.io/badge/PHP-8.2-blue)
 ![Laravel](https://img.shields.io/badge/Laravel-12-red)

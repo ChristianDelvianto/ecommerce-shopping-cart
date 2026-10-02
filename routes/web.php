@@ -21,26 +21,37 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::prefix('/profile')
+->as('profile.')
+->middleware(['auth'])
+->group(function () {
+    Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+    Route::patch('/', [ProfileController::class, 'update'])->name('update');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::prefix('/products')
+->as('products.')
+->group(function () {
+    Route::get('/', [ProductController::class, 'index'])->name('index');
+    Route::get('/{product}', [ProductController::class, 'show'])->name('show');
 });
 
-Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/checkout', [CartController::class, 'checkoutItems'])->name('cart.checkout');
-    Route::delete('/cart/items/{cart_item}', [CartController::class, 'removeCartItem'])->name('cart.destroy');
-    Route::put('/cart/products/{product}', [CartController::class, 'upsertProductToCart'])->name('cart.upsert');
+Route::prefix('/cart')
+->as('cart.')
+->middleware(['auth', 'role:user'])
+->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/checkout', [CartController::class, 'checkoutItems'])->name('checkout');
+    Route::delete('/items/{cart_item}', [CartController::class, 'removeCartItem'])->name('destroy');
+    Route::put('/products/{product}', [CartController::class, 'upsertProductToCart'])->name('upsert');
 });
 
-Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+Route::prefix('/orders')
+->as('orders.')
+->middleware(['auth', 'role:user'])
+->group(function () {
+    Route::get('/', [OrderController::class, 'index'])->name('index');
 });
 
 require __DIR__.'/auth.php';

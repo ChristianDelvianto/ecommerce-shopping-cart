@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,7 +22,7 @@ class IndexController extends Controller
                     ->simplePaginate(20);
 
         return Inertia::render('Products/ProductList', [
-            'products' => $products
+            'products' => ProductResource::collection($products)
         ]);
     }
 }

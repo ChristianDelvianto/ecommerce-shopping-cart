@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,7 +17,7 @@ class OrderController extends Controller
                 ->paginate(20);
 
         return Inertia::render('Orders/OrderList', [
-            'orders' => $orders
+            'orders' => OrderResource::collection($orders)
         ]);
     }
 }

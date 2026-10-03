@@ -32,6 +32,29 @@ This separation intentionally decouples historical orders from future product ch
 
 ---
 
+## Route and Controller Structure
+
+- **Routes**
+    - `/web/cart.php` – Cart management
+    - `/web/checkout.php` – Checkout process
+    - `/web/orders.php` – Order history
+    - `/web/products.php` – Product browsing
+
+These routes are grouped by domain and protected with authentication and role-based middleware.
+
+- **Controllers**
+    - `Cart\IndexController` – Display cart contents
+    - `Cart\CheckoutController` – Handle checkout logic
+    - `Cart\DestroyCartItemController` – Remove items from cart
+    - `Cart\UpsertProductController` – Add/update products in cart
+    - `Order\IndexController` – Display user orders
+    - `Product\IndexController` – List products
+    - `Product\ShowController` – Show product details
+
+These controllers are designed to be single-responsibility, focusing on one action per controller to enhance clarity and testability.
+
+---
+
 ## Checkout & Data Integrity
 
 - Checkout creates a transactional snapshot of the order and its items.
@@ -174,11 +197,26 @@ Note:
 
 ## What I Would Do Differently in Production
 
-- Implement a more robust stock reservation system to handle high contention scenarios.
-- Integrate a payment gateway for real transactions.
-- Add comprehensive logging and monitoring for production readiness.
-- Use Redis for queue and cache to improve performance and scalability.
-- Implement SEO optimizations and accessibility improvements for better user experience.
+### High-Concurrency & System Performance
+* **Robust Stock Reservation:** Implement an advanced stock reservation mechanism specifically engineered to handle high-contention purchasing scenarios without database bottlenecks.
+* **Redis Integration:** Transition the application cache and background queue layers to Redis to maximize overall system performance, throughput, and horizontal scalability.
+* **Production Observability:** Integrate comprehensive logging and monitoring infrastructure to ensure full operational visibility and production readiness.
+* **Load Testing & Benchmarking:** Conduct extensive load testing and benchmarking to validate system performance under realistic traffic patterns and identify potential bottlenecks.
+* **Database Optimization:** Implement advanced database optimization techniques, including indexing strategies, query profiling, and schema adjustments to enhance performance under high load.
+
+### Core E-Commerce & User Experience
+* **Partial Cart Checkout:** Add a fault-tolerant "double checkout" system that allows users to seamlessly proceed and purchase available items when certain products in their cart run out of stock.
+* **Payment Gateway Integration:** Integrate a production-ready payment gateway to handle real commercial financial transactions securely.
+* **E2E Test Automation:** Implement Playwright browser testing to automate end-to-end quality assurance, ensuring the entire operational flow functions flawlessly from the user's perspective.
+* **SEO Optimization:** Implement structural SEO optimization and search visibility improvements to enhance discovery and user acquisition.
+
+### Advanced Back-Office & Administrative Functionality
+* **Dedicated Administrative Panel:** Build a standalone admin panel providing isolated spaces for product catalogs, order pipelines, and operational reporting.
+* **Role-Based Access Control (RBAC):** Implement strict role-based access controls to delegate precise permissions across different administrative team roles.
+* **Analytics & Reporting:** Deploy specialized sales and inventory data analytics engines to track business health and item metrics.
+* **Multi-Channel Alert Infrastructure:** Upgrade the current low-stock monitoring systems into a robust notification engine capable of dispatching automated email and SMS alerts.
+
+---
 
 ## Final Notes
 

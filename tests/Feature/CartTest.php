@@ -129,6 +129,30 @@ class CartTest extends TestCase
         $this->assertDatabaseEmpty(CartItem::class);
     }
 
+    public function test_user_cannot_add_cart_item_with_nonexistent_product(): void
+    {
+        $this->actingAs($this->user)
+            ->put(route('cart.items.upsert', ['product' => 999]), [
+                'count' => 1
+            ])
+            ->assertStatus(404);
+
+        $this->assertDatabaseEmpty(CartItem::class);
+    }
+
+    public function test_user_cannot_add_cart_item_when_product_out_of_stock(): void
+    {
+        $product = Product::factory()->emptyStock()->create();
+
+        $this->actingAs($this->user)
+            ->put(route('cart.items.upsert', ['product' => $product->id]), [
+                'count' => 1
+            ])
+            ->assertStatus(403);
+
+        $this->assertDatabaseEmpty(CartItem::class);
+    }
+
     public function test_user_cannot_add_cart_item_quantity_less_than_1(): void
     {
         $product = Product::factory()->create();

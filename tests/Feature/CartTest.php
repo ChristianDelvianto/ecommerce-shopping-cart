@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\Product;
@@ -16,6 +17,7 @@ class CartTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+    protected Cart $userCart;
 
     #[Override]
     protected function setUp(): void
@@ -23,6 +25,7 @@ class CartTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->roleUser()->create();
+        $this->userCart = $this->user->cart()->create();
     }
 
     public function test_admin_cannot_add_product_to_cart(): void
@@ -32,7 +35,7 @@ class CartTest extends TestCase
         $product = Product::factory()->create();
 
         $response = $this->actingAs($admin)
-                    ->put(route('cart.upsert', ['product' => $product->id]), [
+                    ->put(route('cart.items.upsert', ['product' => $product->id]), [
                         'count' => 1
                     ]);
 
@@ -44,12 +47,10 @@ class CartTest extends TestCase
 
     public function test_user_can_add_cart_item(): void
     {
-        $cart = $this->user->cart()->create();
-
         $product = Product::factory()->create();
 
         $response = $this->actingAs($this->user)
-                    ->put(route('cart.upsert', ['product' => $product->id]), [
+                    ->put(route('cart.items.upsert', ['product' => $product->id]), [
                         'count' => 1
                     ]);
 
@@ -59,50 +60,44 @@ class CartTest extends TestCase
 
         $this->assertDatabaseHas(CartItem::class, [
             'quantity' => 1,
-            'cart_id' => $cart->id,
+            'cart_id' => $this->userCart->id,
             'product_id' => $product->id
         ]);
     }
 
     public function test_user_can_delete_cart_item(): void
     {
-        $cart = $this->user->cart()->create();
-
         $product = Product::factory()->create();
 
-        $cartItem = $cart->items()->create([
+        $cartItem = $this->userCart->items()->create([
                         'quantity' => 1,
-                        'cart_id' => $cart->id,
                         'product_id' => $product->id
                     ]);
 
         $response = $this->actingAs($this->user)
-                    ->delete(route('cart.destroy', ['cart_item' => $cartItem->id]));
+                    ->delete(route('cart.items.destroy', ['cartItem' => $cartItem->id]));
 
         $response
             ->assertSessionDoesntHaveErrors()
             ->assertRedirectBackWithoutErrors();
 
         $this->assertDatabaseMissing(CartItem::class, [
-            'cart_id' => $cart->id,
+            'cart_id' => $this->userCart->id,
             'product_id' => $product->id
         ]);
     }
 
     public function test_user_can_update_cart_item(): void
     {
-        $cart = $this->user->cart()->create();
-
         $product = Product::factory()->create();
 
-        $cart->items()->create([
+        $this->userCart->items()->create([
             'quantity' => 1,
-            'cart_id' => $cart->id,
             'product_id' => $product->id
         ]);
 
         $response = $this->actingAs($this->user)
-                    ->put(route('cart.upsert', ['product' => $product->id]), [
+                    ->put(route('cart.items.upsert', ['product' => $product->id]), [
                         'count' => 4
                     ]);
 
@@ -112,7 +107,7 @@ class CartTest extends TestCase
 
         $this->assertDatabaseHas(CartItem::class, [
             'quantity' => 4,
-            'cart_id' => $cart->id,
+            'cart_id' => $this->userCart->id,
             'product_id' => $product->id
         ]);
     }
@@ -122,7 +117,7 @@ class CartTest extends TestCase
         $product = Product::factory()->create();
 
         $response = $this->actingAs($this->user)
-                    ->put(route('cart.upsert', ['product' => $product->id]), [
+                    ->put(route('cart.items.upsert', ['product' => $product->id]), [
                         'count' => $product->stock_quantity + 1
                     ]);
 
@@ -130,6 +125,8 @@ class CartTest extends TestCase
             ->assertStatus(302)
             ->assertSessionHasErrors()
             ->assertRedirectBackWithErrors();
+
+        $this->assertDatabaseEmpty(CartItem::class);
     }
 
     public function test_user_cannot_add_cart_item_quantity_less_than_1(): void
@@ -137,7 +134,7 @@ class CartTest extends TestCase
         $product = Product::factory()->create();
 
         $response = $this->actingAs($this->user)
-                    ->put(route('cart.upsert', ['product' => $product->id]), [
+                    ->put(route('cart.items.upsert', ['product' => $product->id]), [
                         'count' => 0
                     ]);
 
@@ -151,13 +148,10 @@ class CartTest extends TestCase
 
     public function test_checkout_creates_order_and_reduces_stock(): void
     {
-        $cart = $this->user->cart()->create();
-
         $product = Product::factory()->create(['stock_quantity' => 10]);
 
-        $cart->items()->create([
+        $this->userCart->items()->create([
             'quantity' => 3,
-            'cart_id' => $cart->id,
             'product_id' => $product->id
         ]);
 
@@ -176,18 +170,18 @@ class CartTest extends TestCase
             'stock_quantity' => 7
         ]);
 
-        $this->assertDatabaseMissing(CartItem::class, ['cart_id' => $cart->id]);
+        $this->assertDatabaseMissing(CartItem::class, [
+            'cart_id' => $this->userCart->id,
+            'product_id' => $product->id
+        ]);
     }
 
     public function test_user_cannot_checkout_when_product_stock_insufficient(): void
     {
-        $cart = $this->user->cart()->create();
-
         $product = Product::factory()->create(['stock_quantity' => 5]);
 
-        $cart->items()->create([
+        $this->userCart->items()->create([
             'quantity' => 7,
-            'cart_id' => $cart->id,
             'product_id' => $product->id
         ]);
 

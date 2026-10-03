@@ -1,15 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Order;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\Response as InertiaResponse;
 
-class OrderController extends Controller
+class IndexController extends Controller
 {
-    public function index(Request $request): Response
+    /**
+     * Handle the incoming request.
+     */
+    public function __invoke(Request $request): InertiaResponse
     {
         $orders = $request->user()->orders()
                 ->with('items.product')

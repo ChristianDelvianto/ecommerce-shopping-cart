@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * Laravel breeze default profile routes.
+ */
 Route::prefix('/profile')
 ->as('profile.')
 ->middleware(['auth'])

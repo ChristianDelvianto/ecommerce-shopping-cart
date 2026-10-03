@@ -13,11 +13,20 @@ class Cart extends Model
     use HasFactory;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'user_id',
+    ];
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CartItem, $this>
      */
     public function items(): HasMany
     {
-        return $this->hasMany(CartItem::class);
+        return $this->hasMany(CartItem::class, 'cart_id', 'id');
     }
 
     /**

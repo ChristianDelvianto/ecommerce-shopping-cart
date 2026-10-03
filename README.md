@@ -172,6 +172,14 @@ Note:
 
 ---
 
+## What I Would Do Differently in Production
+
+- Implement a more robust stock reservation system to handle high contention scenarios.
+- Integrate a payment gateway for real transactions.
+- Add comprehensive logging and monitoring for production readiness.
+- Use Redis for queue and cache to improve performance and scalability.
+- Implement SEO optimizations and accessibility improvements for better user experience.
+
 ## Final Notes
 
 This project was completed in approximately 4–5 days, including design, implementation, and refinement.

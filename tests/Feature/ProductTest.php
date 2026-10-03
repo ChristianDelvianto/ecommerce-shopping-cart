@@ -6,25 +6,38 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Queue\Queueable;
+use Override;
 use Tests\TestCase;
 
 class ProductTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_product_index_shows_only_products_with_stock(): void
+    protected User $user;
+
+    #[Override]
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->withoutVite();
 
-        $user = User::factory()->create();
-        $inStockProduct = Product::factory()->create(['stock_quantity' => 100]);
-        Product::factory()->create(['stock_quantity' => 0]);
+        $this->user = User::factory()->roleUser()->create();
+    }
 
-        $response = $this->actingAs($user)->get('/products', [
-            'X-Inertia' => 'true',
-            'Accept' => 'application/json',
-        ]);
+    public function test_product_index_shows_only_products_with_stock(): void
+    {
+        $inStockProduct = Product::factory()->create(['stock_quantity' => 100]);
+
+        // Create product with no stock
+        Product::factory()->emptyStock()->create();
+
+        $response = $this->actingAs($this->user)
+                    ->get(route('products.index'), [
+                        'X-Inertia' => true,
+                        'Accept' => 'application/json'
+                    ]);
+
         $response
             ->assertOk()
             ->assertJsonPath('component', 'Products/ProductList')
@@ -34,17 +47,16 @@ class ProductTest extends TestCase
 
     public function test_product_show_loads_product_and_recommended_products(): void
     {
-        $this->withoutVite();
-
-        $user = User::factory()->create();
         $product = Product::factory()->create(['stock_quantity' => 5]);
 
-        Product::factory()->count(3)->create(['stock_quantity' => 10]);
+        Product::factory(3, ['stock_quantity' => 10])->create();
 
-        $response = $this->actingAs($user)->get("/products/{$product->id}", [
-            'X-Inertia' => 'true',
-            'Accept' => 'application/json',
-        ]);
+        $response = $this->actingAs($this->user)
+                    ->get(route('products.show', ['product' => $product->id]), [
+                        'X-Inertia' => true,
+                        'Accept' => 'application/json'
+                    ]);
+
         $response
             ->assertOk()
             ->assertJsonPath('component', 'Products/ProductShow')
@@ -54,21 +66,23 @@ class ProductTest extends TestCase
 
     public function test_product_show_does_not_include_out_of_stock_recommendations(): void
     {
-        $this->withoutVite();
-
-        $user = User::factory()->create();
         $product = Product::factory()->create(['stock_quantity' => 5]);
 
-        Product::factory()->create(['stock_quantity' => 0]);
+        // Product with no stock should not appear to user
+        Product::factory()->emptyStock()->create();
+
+        // This product should appear to user
         Product::factory()->create(['stock_quantity' => 10]);
 
-        $response = $this->actingAs($user)->get("/products/{$product->id}", [
-            'X-Inertia' => 'true',
-            'Accept' => 'application/json',
-        ]);
+        $response = $this->actingAs($this->user)
+                    ->get(route('products.show', ['product' => $product->id]), [
+                        'X-Inertia' => true,
+                        'Accept' => 'application/json'
+                    ]);
 
         $recommended = collect($response->json('props.recommended'));
 
+        // Make sure every product has stock
         $this->assertTrue($recommended->every(fn ($p) => $p['stock_quantity'] > 0));
     }
 }
